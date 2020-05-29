@@ -1,0 +1,14 @@
+Utilice RPC para la funcion en el inciso b.
+
+En ambos casos probe con un numero de iteraciones igual al maximo entero representable.
+Para el inciso a, el tiempo que tarda es mas o menos 10000 microsegundos. 
+Para el inciso b usando dos maquinas virtuales, tarda muchisimo mas tiempo, 2400000 microsegundos.
+Si disminuyo la cantidad de iteraciones, estos tiempos bajan de manera acorde.
+
+Si realizo la experiencia 1 nuevamente pero esta vez utilizando la funcion system, el tiempo es muy alto,
+incluso mayor que en el inciso b, siendo 2700000 en promedio.
+Cabe recalcar que para ejecutar la imagen se utilizo la funcion execve.
+
+Los resultados son los esperados. Es obvio que crear un proceso hijo que ejecute una tarea en otra computadora va tomar mucho mas tiempo
+debido a los retardos en el envio de mensajes. En el caso de system, el tiempo es alto porque el sistema debe cambiar de contexto para 
+iniciar la ejecucion y luego volver al contexto del programa inicial, lo cual es una tarea muy costosa como podemos ver con ese resultado.
