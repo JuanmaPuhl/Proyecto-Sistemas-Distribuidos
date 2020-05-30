@@ -1,5 +1,5 @@
 3) Tiempos en microsegundos
-a)
+a)(dos consolas en un mismo raspbian)
 t1: 145
 t2: 125
 t3: 125
@@ -11,7 +11,7 @@ t8: 125
 t9: 126
 t10: 125
  
-b)(dos maquinas virtuales identicas en misma pc)
+b)(dos maquinas virtuales identicas raspbian en misma pc)
 t1: 1308
 t2: 656
 t3: 862
@@ -23,14 +23,14 @@ t8: 1418
 t9: 1298
 t10: 1289
  
-c)(dos maquinas virtuales distintas corriendo en misma pc)
-t1: 
-t2: 
-t3: 
-t4: 
-t5: 
-t6: 
-t7: 
-t8: 
-t9: 
-t10: 
+c)(dos maquinas virtuales distintas, raspbian y ubuntu corriendo en misma pc)
+t1: 1365
+t2: 1415
+t3: 1551
+t4: 1924
+t5: 1807
+t6: 1489
+t7: 1236
+t8: 1492
+t9: 1376
+t10: 1583
