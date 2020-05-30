@@ -1,0 +1,36 @@
+3) Tiempos en microsegundos
+a)
+t1: 145
+t2: 125
+t3: 125
+t4: 125
+t5: 150
+t6: 126
+t7: 126
+t8: 125
+t9: 126
+t10: 125
+ 
+b)(dos maquinas virtuales identicas en misma pc)
+t1: 1308
+t2: 656
+t3: 862
+t4: 777
+t5: 887
+t6: 994
+t7: 1198
+t8: 1418
+t9: 1298
+t10: 1289
+ 
+c)(dos maquinas virtuales distintas corriendo en misma pc)
+t1: 
+t2: 
+t3: 
+t4: 
+t5: 
+t6: 
+t7: 
+t8: 
+t9: 
+t10: 

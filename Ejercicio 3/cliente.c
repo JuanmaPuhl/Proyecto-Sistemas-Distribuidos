@@ -24,8 +24,18 @@ int main(int argc, char *argv[])
 		exit(2);
 	}
 
-    ByteArray *input_array;
-	ByteArray *output_array;
+    ByteArray *input_array = malloc(sizeof(ByteArray));
+	ByteArray *output_array = malloc(sizeof(ByteArray));
+	
+	/*
+	 * carga e impresion del arreglo solo para test
+	for(int i = 0; i < 100; i++)
+	{
+		input_array->bytes[i*sizeof(int)] = rand() % 10;
+		input_array->bytes[(i+100)*sizeof(int)] = rand() % 10;
+		printf("%d + %d =\n",input_array->bytes[i*sizeof(int)],input_array->bytes[(i+100)*sizeof(int)]);
+	}
+	*/
 
 	struct timeval begin, end;
 	gettimeofday(&begin,NULL);
