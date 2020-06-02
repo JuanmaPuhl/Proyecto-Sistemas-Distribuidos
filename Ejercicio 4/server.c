@@ -5,7 +5,7 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <string.h>
-
+#include <sys/time.h>
 #define MYPORT 14550
 #define BACKLOG 10
 
@@ -26,7 +26,7 @@ int main(int argc, char **argv)
 	struct sockaddr_in my_addr;
 	struct sockaddr_in their_addr;
 	
-	int sin_size;
+	socklen_t sin_size;
 	if((sockfd = socket(AF_INET,SOCK_STREAM,0))==-1)
 	{
 		printf("Ocurrio un error al iniciar el socket");
@@ -39,23 +39,63 @@ int main(int argc, char **argv)
 	{
 		
 	}
+	//Escucho conexiones entrantes
 	if(listen(sockfd,BACKLOG) == -1)
 	{
 	}
 	while(1)
 	{
 		sin_size = sizeof(struct sockaddr_in);
+		//Acepto la conexion del cliente
 		if((newfd=accept(sockfd,(struct sockaddr*)&their_addr,&sin_size))==-1)
 		{
 		}
+		struct timeval begin, end;
+		gettimeofday(&begin,NULL); //Obtengo la hora actual
 		printf("server:conexion desde:%s\n",inet_ntoa(their_addr.sin_addr));
 		printf("Desde puerto:%d\n",ntohs(their_addr.sin_port));
-		if(!fork())
-		{
-			if(send(newfd,"Hello, world!\n",14,0)==-1)
-				perror("send");
-			close(newfd);
-			exit(0);
+		char buf[1]; //Mensaje recibido desde el cliente
+		int numbytes = 0; //Cantidad de bytes recibidos 
+		//Recibo los datos del cliente
+		if((numbytes=recv(newfd,buf,1,0))==-1){
+			//Si no recibo datos me quedo bloqueado hasta que llegan...
+		}
+		buf[numbytes]='\0';
+		/*Ahora debo revisar la funcion que ingreso el usuario*/
+		if(strcmp(buf,"a")==0){
+			//Debo enviar 4 bytes al usuario
+			char arrtosend[4];
+			int i;
+			for(i = 0; i < 4; i++){
+				arrtosend[i] = 'a';
+			}
+			//Envio los datos solicitados al sv.
+			if(send(newfd,arrtosend,4,0) == -1){
+				perror("sendto");
+				exit(EXIT_FAILURE);
+			}
+			gettimeofday(&end,NULL);
+			printf("Enviar 4 bytes ha tomado: %ld microsegundos\n",
+				((long)1.0e6*end.tv_sec + end.tv_usec) - 
+				((long)1.0e6*begin.tv_sec + begin.tv_usec));
+		}
+		else
+		if(strcmp(buf,"b")==0){
+			//Debo enviar 2048 bytes al usuario.
+			char arrtosend[2048];
+			int i;
+			for(i = 0; i < 2048; i++){
+				arrtosend[i] = 'a';
+			}
+			//Envio el dato solicitado al usuario.
+			if(send(newfd,arrtosend,2048,0) == -1){
+				perror("sendto");
+				exit(EXIT_FAILURE);
+			}
+			gettimeofday(&end,NULL);
+			printf("Enviar 2048 bytes ha tomado: %ld microsegundos\n",
+				((long)1.0e6*end.tv_sec + end.tv_usec) - 
+				((long)1.0e6*begin.tv_sec + begin.tv_usec));
 		}
 		close(newfd);
 	}
