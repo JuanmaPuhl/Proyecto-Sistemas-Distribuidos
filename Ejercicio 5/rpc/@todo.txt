@@ -1,0 +1,2 @@
+decimal a binario solo hasta 1024
+binario a hexa solo hasta 1024
