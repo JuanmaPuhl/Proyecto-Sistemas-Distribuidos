@@ -1,63 +1,83 @@
 #include <stdio.h>
-#include <unistd.h>
-#include <string.h>
 #include "protocolo.h"
 
-unsigned long int *decabin_1_svc(int *nro, struct svc_req *req)
+Mensaje *dectobin_1_svc(Mensaje *msg, struct svc_req *req)
 {
-	static unsigned long int result;
-	result = 0;
+	static Mensaje to_return;
+	Mensaje *binario = malloc(sizeof(Mensaje));
 	int rem, temp = 1;
-	while (*nro > 0) { 
-		rem = *nro%2;
-		*nro = *nro / 2;
-		result = result + rem*temp;
+	int resultado = 0;
+	while (msg->datos[0] > 0) { 
+		rem = msg->datos[0]%2;
+		msg->datos[0] = msg->datos[0] / 2;
+		binario->datos[0] = binario->datos[0] + rem*temp;
 		temp = temp * 10; 
 	} 
-	return(&result);
+	to_return = *binario;
+	return (&to_return);
+	
 }
 
-String *binahex_1_svc(unsigned long int *bin, struct svc_req *req)
+char **bintohex_1_svc(Mensaje *msg, struct svc_req *req)
 {
-	static String result;
-	long int binaryval, hexadecimalval = 0, i = 1, remainder;
-	while ((*bin) != 0)
+	static char *to_return;
+	to_return = malloc(8*sizeof(char));
+	
+	int binaryval = msg->datos[0];
+	int hexadecimalval = 0;
+	int i = 1;
+	int remainder;
+	while(binaryval != 0)
 	{
-		remainder = (*bin) % 10;
+		remainder = binaryval % 10;
 		hexadecimalval = hexadecimalval + remainder * i;
 		i = i * 2;
-		(*bin) = (*bin) / 10;
+		binaryval = binaryval / 10;
 	}
-	sprintf(result.val,"%lX",hexadecimalval);
-	return(&result);
+	sprintf(to_return,"%X",hexadecimalval);
+	return (&to_return);
 }
 
-int *suma_1_svc(Cuadrupla *op, struct svc_req *req)
+Mensaje *suma_1_svc(Mensaje *msg, struct svc_req *req)
 {
-	static int result;
-	result = op->operandos[0] + op->operandos[1] + op->operandos[2] + op->operandos[3];
-	return(&result);
+	static Mensaje to_return;
+	Mensaje *suma = malloc(sizeof(Mensaje));
+	for(int i = 0; i < 4; i++)
+	{
+		suma->datos[0] += msg->datos[i];
+	}
+	to_return = *suma;
+	return (&to_return);
 }
 
-int *resta_1_svc(Cuadrupla *op, struct svc_req *req)
-{	
-	static int result;
-	
-	result = op->operandos[0] - op->operandos[1] - op->operandos[2] - op->operandos[3];
-	
-	return(&result);
-}
-
-int *multiplicacion_1_svc(Dupla *op, struct svc_req *req)
+Mensaje *resta_1_svc(Mensaje *msg, struct svc_req *req)
 {
-	static int result;
-	result = op->a * op->b;
-	return(&result);
+	static Mensaje to_return;
+	Mensaje *resta = malloc(sizeof(Mensaje));
+	resta->datos[0] = msg->datos[0];
+	for(int i = 1; i < 4; i++)
+	{
+		resta->datos[0] -= msg->datos[i];
+	}
+	to_return = *resta;
+	return (&to_return);
 }
 
-Double *division_1_svc(Dupla *op, struct svc_req *req)
+Mensaje *multiplicacion_1_svc(Mensaje *msg, struct svc_req *req)
 {
-	static Double result;
-	result.val = (double)op->a / (double)op->b;
-	return(&result);
+	static Mensaje to_return;	
+	Mensaje *mult = malloc(sizeof(Mensaje));
+	mult->datos[0] = msg->datos[0] * msg->datos[1];
+	to_return = *mult;
+	return (&to_return);
+}
+
+Mensaje *division_1_svc(Mensaje *msg, struct svc_req *req)
+{
+	static Mensaje to_return;
+	Mensaje *div = malloc(sizeof(Mensaje));
+	div->datos[0] = msg->datos[0] / msg->datos[1];
+	div->datos[1] = msg->datos[0] % msg->datos[1];
+	to_return = *div;
+	return (&to_return);
 }

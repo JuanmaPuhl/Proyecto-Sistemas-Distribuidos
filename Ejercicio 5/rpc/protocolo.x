@@ -1,36 +1,17 @@
-struct Cuadrupla
-{
-	int operandos[4];
+struct Mensaje{
+	int datos[4];
 };
-typedef struct Cuadrupla Cuadrupla;
+typedef struct Mensaje Mensaje;
 
-struct Dupla
+program PROY1EJ5
 {
-	int a;
-	int b;
-};
-typedef struct Dupla Dupla;
-
-struct Double
-{
-	double val;
-};
-typedef struct Double Double;
-
-struct String
-{
-	char val[32];
-};
-typedef struct String String;
-
-program PROY1EJ5 {
-	version PROY1EJ5VERS {
-		unsigned long int DECABIN(int)=1;
-		String BINAHEX(unsigned long int)=2;
-		int SUMA(Cuadrupla)=3;
-		int RESTA(Cuadrupla)=4;
-		int MULTIPLICACION(Dupla)=5;
-		Double DIVISION(Dupla)=6;
-		
+	version PROY1EJ5VERS
+	{
+		Mensaje DECTOBIN(Mensaje)=1;
+		string BINTOHEX(Mensaje)=2;
+		Mensaje SUMA(Mensaje)=3;
+		Mensaje RESTA(Mensaje)=4;
+		Mensaje MULTIPLICACION(Mensaje)=5;
+		Mensaje DIVISION(Mensaje)=6;
 	}=1;
 }=0x20001003;
