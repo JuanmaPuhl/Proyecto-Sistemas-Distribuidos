@@ -1,5 +1,5 @@
 struct Mensaje{
-	int datos[4];
+	long int datos[4];
 };
 typedef struct Mensaje Mensaje;
 

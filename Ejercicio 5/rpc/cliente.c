@@ -60,16 +60,16 @@ int main(int argc, char *argv[])
 		case 1:
 			printf("Ingrese un numero decimal para convertir a binario.\n");			
 			fflush(stdin);
-			scanf("%d",&(msg_to_send->datos[0]));	
+			scanf("%ld",&(msg_to_send->datos[0]));	
 			gettimeofday(&begin,NULL);
 			msg_to_rec = dectobin_1(msg_to_send,clnt);
 			gettimeofday(&end,NULL);
-			printf("Resultado: %d\n",msg_to_rec->datos[0]);
+			printf("Resultado: %ld\n",msg_to_rec->datos[0]);
 			break;
 		case 2:
 			printf("Ingrese un numero binario para convertir a hexadecimal.\n");			
 			fflush(stdin);
-			scanf("%d",&(msg_to_send->datos[0]));	
+			scanf("%ld",&(msg_to_send->datos[0]));	
 			gettimeofday(&begin,NULL);
 			char **resp = bintohex_1(msg_to_send,clnt);
 			gettimeofday(&end,NULL);
@@ -79,53 +79,53 @@ int main(int argc, char *argv[])
 			printf("Ingrese hasta 4 numeros para sumarlos.\n");
 			for(int i = 0; i < 4; i++)
 			{
-				printf("Ingrese el operando %d: \n",(i+1));
+				printf("Ingrese el operando %ld: \n",(i+1));
 				fflush(stdin);
-				scanf("%d",&(msg_to_send->datos[i]));
+				scanf("%ld",&(msg_to_send->datos[i]));
 			}
 			gettimeofday(&begin,NULL);
 			msg_to_rec = suma_1(msg_to_send,clnt);
 			gettimeofday(&end,NULL);
-			printf("Resultado: %d\n",msg_to_rec->datos[0]);
+			printf("Resultado: %ld\n",msg_to_rec->datos[0]);
 			break;
 		case 4:
 			printf("Ingrese hasta 4 numeros para restarlos.\n");
 			for(int i = 0; i < 4; i++)
 			{
-				printf("Ingrese el operando %d: \n",(i+1));
+				printf("Ingrese el operando %ld: \n",(i+1));
 				fflush(stdin);
-				scanf("%d",&(msg_to_send->datos[i]));
+				scanf("%ld",&(msg_to_send->datos[i]));
 			}
 			gettimeofday(&begin,NULL);
 			msg_to_rec = resta_1(msg_to_send,clnt);
 			gettimeofday(&end,NULL);
-			printf("Resultado: %d\n",msg_to_rec->datos[0]);
+			printf("Resultado: %ld\n",msg_to_rec->datos[0]);
 			break;
 		case 5:
 			printf("Ingrese hasta 2 numeros para multiplicarlos.\n");
 			for(int i = 0; i < 2; i++)
 			{
-				printf("Ingrese el operando %d: \n",(i+1));
+				printf("Ingrese el operando %ld: \n",(i+1));
 				fflush(stdin);
-				scanf("%d",&(msg_to_send->datos[i]));
+				scanf("%ld",&(msg_to_send->datos[i]));
 			}
 			gettimeofday(&begin,NULL);
 			msg_to_rec = multiplicacion_1(msg_to_send,clnt);
 			gettimeofday(&end,NULL);
-			printf("Resultado: %d\n",msg_to_rec->datos[0]);
+			printf("Resultado: %ld\n",msg_to_rec->datos[0]);
 			break;
 		case 6:
 			printf("Ingrese hasta 2 numeros para dividirlos.\n");
 			for(int i = 0; i < 2; i++)
 			{
-				printf("Ingrese el operando %d: \n",(i+1));
+				printf("Ingrese el operando %ld: \n",(i+1));
 				fflush(stdin);
-				scanf("%d",&(msg_to_send->datos[i]));
+				scanf("%ld",&(msg_to_send->datos[i]));
 			}
 			gettimeofday(&begin,NULL);
 			msg_to_rec = division_1(msg_to_send,clnt);
 			gettimeofday(&end,NULL);
-			printf("Resultado: %d, resto: %d\n",msg_to_rec->datos[0],msg_to_rec->datos[1]);
+			printf("Resultado: %ld, resto: %d\n",msg_to_rec->datos[0],msg_to_rec->datos[1]);
 			break;
 		default:
 			exit(0);		

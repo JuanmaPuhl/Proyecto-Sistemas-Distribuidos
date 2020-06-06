@@ -5,8 +5,8 @@ Mensaje *dectobin_1_svc(Mensaje *msg, struct svc_req *req)
 {
 	static Mensaje to_return;
 	Mensaje *binario = malloc(sizeof(Mensaje));
-	int rem, temp = 1;
-	int resultado = 0;
+	long int rem, temp = 1;
+	long int resultado = 0;
 	while (msg->datos[0] > 0) { 
 		rem = msg->datos[0]%2;
 		msg->datos[0] = msg->datos[0] / 2;
@@ -23,10 +23,10 @@ char **bintohex_1_svc(Mensaje *msg, struct svc_req *req)
 	static char *to_return;
 	to_return = malloc(8*sizeof(char));
 	
-	int binaryval = msg->datos[0];
-	int hexadecimalval = 0;
+	long int binaryval = msg->datos[0];
+	long int hexadecimalval = 0;
 	int i = 1;
-	int remainder;
+	long int remainder;
 	while(binaryval != 0)
 	{
 		remainder = binaryval % 10;
@@ -34,7 +34,7 @@ char **bintohex_1_svc(Mensaje *msg, struct svc_req *req)
 		i = i * 2;
 		binaryval = binaryval / 10;
 	}
-	sprintf(to_return,"%X",hexadecimalval);
+	sprintf(to_return,"%lX",hexadecimalval);
 	return (&to_return);
 }
 
