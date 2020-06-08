@@ -43,7 +43,6 @@ void pedirASv(int fn)
 	 * aunque yo no deberia saberlo jeje :) */
 	Cabecera* c = malloc(sizeof(Cabecera)); //Creo la cabecera
 	c->identificador = IdpedirFuncion;
-	//printf("%d.\n",c->identificador);
 	Funcion* f = malloc(sizeof(Funcion));
 	f->Idfuncion = fn;
 	if(send(sockfd, c, sizeof(Cabecera), 0) == -1)//Envio la cabecera
@@ -135,18 +134,14 @@ int main(int argc, char **argv)
 			{
 			}
 			int tipo = cabecera->identificador;
-			//~ printf("Recibido tipo: %d\n", tipo); //Escribo lo que recibi del sv.		
 			if(tipo == Idpedirdato) //Es un pedido de la otra agencia
 			{
-				//~ printf("Entre al if. Recibi un pedirDato.\n");
 				recv(sockfd, cabecera, sizeof(Cabecera), 0); //Consumo el mensaje
 				Funcion* funcion = malloc(sizeof(Funcion));
 				if((recv(sockfd, funcion, sizeof(Funcion), 0)) == -1)//Recibo los datos
 				{
 				}
-				//~ printf("Recibi la funcion.\n");
 				int f = funcion->Idfuncion;
-				//~ printf("La funcion es: %d\n",f);
 				char msg[MAXDATASIZE];
 				switch(f)
 				{
@@ -157,10 +152,8 @@ int main(int argc, char **argv)
 					case 6: strcpy(msg,dominioVehiculo());
 							break;
 				}
-				//~ printf("El mensaje a enviar es: %s\n",msg);
 				//Ahora debo enviar el mensaje obtenido
 				cabecera->identificador = Iddardatos;
-				//~ printf("El id de la cabecera es: %d\n",cabecera->identificador);
 				Datos* datos = malloc(sizeof(Datos));
 				strcpy(datos->datos,msg);
 				if(send(sockfd, cabecera, sizeof(Cabecera), 0) == -1)//Envio la cabecera
@@ -168,13 +161,11 @@ int main(int argc, char **argv)
 					perror("sendto");
 					exit(EXIT_FAILURE);
 				}
-				//~ printf("Envie la cabecera.\n");
 				if(send(sockfd, datos, sizeof(Datos), 0) == -1)//Envio la funcion deseada
 				{
 					perror("sendto");
 					exit(EXIT_FAILURE);
-				}
-				//~ printf("Envie los datos.\n");				
+				}			
 			}
 			if(tipo == IdCerrar)
 			{
