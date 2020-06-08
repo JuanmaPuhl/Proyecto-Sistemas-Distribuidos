@@ -35,6 +35,8 @@ char* dominioVehiculo()
 	return "Obteniendo informacion del dominio del vehiculo.";
 }
 
+
+/*Metodo auxiliar que maneja los pedidos del cliente con el sv*/
 void pedirASv(int fn)
 {
 	/*Ahora le envio la funcion al servidor de la agencia B
@@ -56,19 +58,16 @@ void pedirASv(int fn)
 	}
 	
 	/*Ahora debo esperar a que lleguen los mensajes con los datos*/
-	
 	int recibi = 0;
-	while(!recibi)
+	while(!recibi) //Ejecuto hasta que reciba el mensaje que quiero
 	{
-		Cabecera* cabecera = malloc(sizeof(Cabecera)); //Obtengo primero la cabecera
-		if((recv(sockfd, cabecera, sizeof(Cabecera), MSG_PEEK)) == -1)//Recibo pero no quito de la cola
+		if((recv(sockfd, c, sizeof(Cabecera), MSG_PEEK)) == -1)//Recibo pero no quito de la cola
 		{
 		}
-		//printf("Entre aca. RARI.\n");
-		int tipo = cabecera->identificador; //Obtengo el tipo de mensaje
+		int tipo = c->identificador; //Obtengo el tipo de mensaje
 		if(tipo == Iddardatos)
 		{
-			recv(sockfd, cabecera, sizeof(Cabecera), 0); //Consumo el mensaje
+			recv(sockfd, c, sizeof(c), 0); //Consumo el mensaje
 			Datos* datos = malloc(sizeof(Datos));
 			if(recv(sockfd, datos, sizeof(Datos), 0)==-1) //Consumo el mensaje
 			{
@@ -79,10 +78,23 @@ void pedirASv(int fn)
 	}
 }
 
+void cerrarPrograma(pid_t pid)
+{
+	Cabecera* cabecera = malloc(sizeof(Cabecera));
+	cabecera->identificador = IdCerrar;
+	if(send(sockfd, cabecera, sizeof(Cabecera), 0) == -1)//Envio la cabecera
+	{
+		perror("sendto");
+		exit(EXIT_FAILURE);
+	}
+	kill(pid, SIGKILL); //Mato el proceso receptor de mensajes
+	close(sockfd); //Cierro el socket
+	exit(0); //Salgo
+}
+
 /**En este caso la comunicacion es orientada a sockets con conexion*/
 int main(int argc, char **argv)
 {
-	
 	struct hostent *he;
 	struct sockaddr_in their_addr;
 	/*Formato de entrada esperado: 
@@ -101,6 +113,7 @@ int main(int argc, char **argv)
 		printf("Error: Ocurrio un problema al abrir el socket");
 		exit(-1);
 	}
+	//Configuracion
 	their_addr.sin_family = AF_INET;
 	their_addr.sin_port = htons(PORT);
 	their_addr.sin_addr = *((struct in_addr*)he->h_addr);
@@ -110,12 +123,12 @@ int main(int argc, char **argv)
 	if(connect(sockfd,(struct sockaddr*)&their_addr,sizeof(struct sockaddr))==-1){
 	}
 	
-	//Creo otro proceso que se encargue de escuchar mensajes con requerimientos desde la agencia B
+	//Creo otro proceso que se encargue de escuchar mensajes con requerimientos del servidor
 	pid_t pid = fork();
 	if(!pid)
 	{
 		int numbytes;
-		while(1)
+		while(1) //Hago que se ejecute siempre
 		{	
 			Cabecera* cabecera = malloc(sizeof(Cabecera));
 			if((numbytes = recv(sockfd, cabecera, sizeof(Cabecera), MSG_PEEK)) == -1)//Recibo el mensaje pero no lo quito de la cola hasta revisar el tipo
@@ -163,14 +176,21 @@ int main(int argc, char **argv)
 				}
 				//~ printf("Envie los datos.\n");				
 			}
+			if(tipo == IdCerrar)
+			{
+				printf("Se cerro el servidor.\n");
+				kill(getppid(),SIGKILL);
+				exit(0);
+			}
 		}	
 	}
-	else
+	else //Sigo con la ejecucion del proceso principal
 	{
-		while(1)
+		while(1) //Se ejecuta siempre
 		{
 			int verificacionLista = 0;
-			printf("Bienvenido a la agencia A.\n");
+			/*Imprimo el menu*/
+			printf("Bienvenido a la agencia B.\n");
 			printf("==========================\n\n");
 			printf("Ingrese la funcion deseada:\n");
 			printf("1. Pedir turno para licencia de matrimonio.\n");
@@ -199,18 +219,17 @@ int main(int argc, char **argv)
 			}
 			
 			int fn = atoi(&eleccion);
-			switch(fn)
+			switch(fn) //Ahora ejecuto la funcion correspondiente
 			{
-				case 0: kill(pid, SIGKILL);
-						close(sockfd);
-						exit(0);
+				case 0: cerrarPrograma(pid);
+						break;
 				case 4: printf("%s\n",patentarAuto());
 						break;
 				case 5: printf("%s\n",transferirVehiculo());
 						break;
 				case 6: printf("%s\n",dominioVehiculo());
 						break;
-				default:pedirASv(fn); 
+				default:pedirASv(fn);  //Si no esta aca debo pedirla al sv.
 			}
 		}
 	}

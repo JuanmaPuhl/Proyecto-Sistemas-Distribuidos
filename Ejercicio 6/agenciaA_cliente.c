@@ -35,6 +35,20 @@ char* registrarBebe()
 	return "Registrando bebe.";
 }
 
+void cerrarPrograma(pid_t pid)
+{
+	Cabecera* cabecera = malloc(sizeof(Cabecera));
+	cabecera->identificador = IdCerrar;
+	if(send(sockfd, cabecera, sizeof(Cabecera), 0) == -1)//Envio la cabecera
+	{
+		perror("sendto");
+		exit(EXIT_FAILURE);
+	}
+	kill(pid, SIGKILL); //Mato el proceso receptor de mensajes
+	close(sockfd); //Cierro el socket
+	exit(0); //Salgo
+}
+
 void pedirASv(int fn)
 {
 	/*Ahora le envio la funcion al servidor de la agencia B
@@ -114,60 +128,72 @@ int main(int argc, char **argv)
 	if(!pid)
 	{
 		int numbytes;
+		int llegoApagado = 0;
 		while(1)
 		{	
-			Cabecera* cabecera = malloc(sizeof(Cabecera));
-			if((numbytes = recv(sockfd, cabecera, sizeof(Cabecera), MSG_PEEK)) == -1)//Recibo el mensaje pero no lo quito de la cola hasta revisar el tipo
+			if(!llegoApagado)
 			{
+				Cabecera* cabecera = malloc(sizeof(Cabecera));
+				if((numbytes = recv(sockfd, cabecera, sizeof(Cabecera), MSG_PEEK)) == -1)//Recibo el mensaje pero no lo quito de la cola hasta revisar el tipo
+				{
+				}
+				int tipo = cabecera->identificador;
+				//~ printf("Recibido tipo: %d\n", tipo); //Escribo lo que recibi del sv.		
+				if(tipo == Idpedirdato) //Es un pedido de la otra agencia
+				{
+					//~ printf("Entre al if. Recibi un pedirDato.\n");
+					recv(sockfd, cabecera, sizeof(Cabecera), 0); //Consumo el mensaje
+					Funcion* funcion = malloc(sizeof(Funcion));
+					if((recv(sockfd, funcion, sizeof(Funcion), 0)) == -1)//Recibo los datos
+					{
+					}
+					//~ printf("Recibi la funcion.\n");
+					int f = funcion->Idfuncion;
+					//~ printf("La funcion es: %d\n",f);
+					char msg[MAXDATASIZE];
+					switch(f)
+					{
+						case 1: strcpy(msg,licenciaMatrimonio());
+								break;
+						case 2: strcpy(msg,partidaNacimiento());
+								break;
+						case 3: strcpy(msg,registrarBebe());
+								break;
+					}
+					//~ printf("El mensaje a enviar es: %s\n",msg);
+					//Ahora debo enviar el mensaje obtenido
+					cabecera->identificador = Iddardatos;
+					//~ printf("El id de la cabecera es: %d\n",cabecera->identificador);
+					Datos* datos = malloc(sizeof(Datos));
+					strcpy(datos->datos,msg);
+					if(send(sockfd, cabecera, sizeof(Cabecera), 0) == -1)//Envio la cabecera
+					{
+						perror("sendto");
+						exit(EXIT_FAILURE);
+					}
+					//~ printf("Envie la cabecera.\n");
+					if(send(sockfd, datos, sizeof(Datos), 0) == -1)//Envio la funcion deseada
+					{
+						perror("sendto");
+						exit(EXIT_FAILURE);
+					}
+					//~ printf("Envie los datos.\n");				
+				}
+				if(tipo == IdCerrar)
+				{
+					printf("Se cerro el servidor.\n");
+					kill(getppid(),SIGKILL);
+					exit(0);
+				}
 			}
-			int tipo = cabecera->identificador;
-			//~ printf("Recibido tipo: %d\n", tipo); //Escribo lo que recibi del sv.		
-			if(tipo == Idpedirdato) //Es un pedido de la otra agencia
-			{
-				//~ printf("Entre al if. Recibi un pedirDato.\n");
-				recv(sockfd, cabecera, sizeof(Cabecera), 0); //Consumo el mensaje
-				Funcion* funcion = malloc(sizeof(Funcion));
-				if((recv(sockfd, funcion, sizeof(Funcion), 0)) == -1)//Recibo los datos
-				{
-				}
-				//~ printf("Recibi la funcion.\n");
-				int f = funcion->Idfuncion;
-				//~ printf("La funcion es: %d\n",f);
-				char msg[MAXDATASIZE];
-				switch(f)
-				{
-					case 1: strcpy(msg,licenciaMatrimonio());
-							break;
-					case 2: strcpy(msg,partidaNacimiento());
-							break;
-					case 3: strcpy(msg,registrarBebe());
-							break;
-				}
-				//~ printf("El mensaje a enviar es: %s\n",msg);
-				//Ahora debo enviar el mensaje obtenido
-				cabecera->identificador = Iddardatos;
-				//~ printf("El id de la cabecera es: %d\n",cabecera->identificador);
-				Datos* datos = malloc(sizeof(Datos));
-				strcpy(datos->datos,msg);
-				if(send(sockfd, cabecera, sizeof(Cabecera), 0) == -1)//Envio la cabecera
-				{
-					perror("sendto");
-					exit(EXIT_FAILURE);
-				}
-				//~ printf("Envie la cabecera.\n");
-				if(send(sockfd, datos, sizeof(Datos), 0) == -1)//Envio la funcion deseada
-				{
-					perror("sendto");
-					exit(EXIT_FAILURE);
-				}
-				//~ printf("Envie los datos.\n");				
-			}
+			
 		}	
 	}
 
 	
 	while(1)
 	{
+		printf("%d.\n",getpid());
 		int verificacionLista = 0;
 		printf("Bienvenido a la agencia A.\n");
 		printf("==========================\n\n");
@@ -200,9 +226,8 @@ int main(int argc, char **argv)
 		int fn = atoi(&eleccion);
 		switch(fn)
 		{
-			case 0: kill(pid, SIGKILL);
-					close(sockfd);
-					exit(0);
+			case 0: cerrarPrograma(pid);
+					break;
 			case 1: printf("%s\n",licenciaMatrimonio());
 					break;
 			case 2: printf("%s\n",partidaNacimiento());

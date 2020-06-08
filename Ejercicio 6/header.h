@@ -16,7 +16,6 @@ typedef struct Datos
 typedef  enum Identificadores 
 {
     Idpedirdato,
-    Idobtenerdato,
     IdCerrar,
     IdpedirFuncion,
     Iddardatos

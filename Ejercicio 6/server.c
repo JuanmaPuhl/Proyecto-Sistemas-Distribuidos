@@ -7,6 +7,7 @@
 #include <string.h>
 #include <sys/time.h>
 #include "header.h"
+#include <signal.h>
 
 #define MYPORT 14550
 #define BACKLOG 10
@@ -21,7 +22,7 @@
 socklen_t sin_size;
 void procesar(int socketEmisor, int socketReceptor)
 {
-	while(1){
+	while(1){ //Ejecuto siempre
 		Cabecera* cabecera = malloc(sizeof(Cabecera)); //Obtengo el mensaje
 		if(recv(socketEmisor,cabecera,sizeof(Cabecera),MSG_PEEK)==-1)
 		{
@@ -76,6 +77,7 @@ void procesar(int socketEmisor, int socketReceptor)
 		{
 			if(tipo == IdCerrar) //El mensaje que llego indica que el cliente emisor quiere cerrar la comunicacion
 			{
+				printf("Cierro.\n");
 				//Debo enviar al receptor que voy a cerrar el canal.
 				cabecera->identificador = IdCerrar;
 				//Envio la cabecera, no es necesario enviar mas nada
@@ -83,9 +85,7 @@ void procesar(int socketEmisor, int socketReceptor)
 					perror("sendto");
 					exit(EXIT_FAILURE);
 				}
-				//Cierro los dos fd que habia abierto
-				close(socketEmisor);
-				close(socketReceptor);
+				break;
 			}
 		}
 	}
@@ -135,13 +135,24 @@ int main(int argc, char **argv)
 	printf("server:conexion desde:%s\n",inet_ntoa(their_addr.sin_addr));
 	printf("Desde puerto:%d\n",ntohs(their_addr.sin_port));
 	//Creo un nuevo proceso. Cada proceso manejara una agencia.
-	if(!fork())
+	pid_t pid = fork();
+	if(!pid)
 	{
 		procesar(fd1,fd2);
+		//Si entro aca es porque cerre el canal
+		close(fd1);
+		close(fd2);
+		kill(getppid(),SIGKILL);
+		exit(0);
 	}
 	else
 	{
 		procesar(fd2,fd1);
+		//Si entro aca es porque cerre el canal
+		close(fd1);
+		close(fd2);
+		kill(pid,SIGKILL);
+		exit(0);
 	}
 	/**Cuando entro aca tengo que cerrar las conexiones con las dos agencias*/
 	
